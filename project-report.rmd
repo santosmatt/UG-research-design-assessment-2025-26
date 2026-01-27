@@ -13,10 +13,15 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 
 ## Library
 ```{r}
-library(tidyverse)
-library(here)
+needed_pkgs <- c("tidyverse", "here")
+for (pkg in needed_pkgs) {
+if (!require(pkg, character.only = TRUE)) {
+install.packages(pkg)
+library(pkg, character.only = TRUE)
+} else {
+library(pkg, character.only = TRUE)
+}}
 ```
-
 
 ## Task 1: Reproducing and improving figures
 
