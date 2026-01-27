@@ -15,7 +15,7 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 
 ```{r importing-required-packages}
 
-pacman::p_load(readr)
+pacman::p_load(magrittr)
 
 ```
 
@@ -24,7 +24,9 @@ pacman::p_load(readr)
 # load and wrangle the data here
 
 postpartum_depression_data_raw <- 
-  read_csv(here::here("data", "HIIT-postpartum-depression.csv"))
+  readr::read_csv(here::here("data", "HIIT-postpartum-depression.csv")) %>% 
+  janitor::clean_names()
+
 
 ```
 
