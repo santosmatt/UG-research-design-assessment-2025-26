@@ -13,9 +13,18 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 
 ## Task 1: Reproducing and improving figures
 
+```{r importing-required-packages}
+
+pacman::p_load(readr)
+
+```
+
+
 ```{r load-wrangle}
 # load and wrangle the data here
 
+postpartum_depression_data_raw <- 
+  read_csv(here::here("data", "HIIT-postpartum-depression.csv"))
 
 ```
 
