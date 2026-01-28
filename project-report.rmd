@@ -15,7 +15,7 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 
 ```{r importing-required-packages}
 
-pacman::p_load(magrittr)
+pacman::p_load(magrittr, dplyr)
 
 ```
 
@@ -27,7 +27,16 @@ postpartum_depression_data_raw <-
   readr::read_csv(here::here("data", "HIIT-postpartum-depression.csv")) %>% 
   janitor::clean_names()
 
-
+postpartum_depression_data <- postpartum_depression_data_raw %>% 
+  select(intervention_group, 
+         edinburg_postnatal_depression_scale_score, 
+         pre_fs_scale,
+         post_fs_score,
+         postnatal_florishing_scale_score,
+         pre_sf_12_pcs_physicalhealthscale,
+         post_sf12_pcs,
+         postpre_sf12_pcs
+         )
 ```
 
 
