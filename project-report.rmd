@@ -36,7 +36,15 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
          pre_sf_12_pcs_physicalhealthscale,
          post_sf12_pcs,
          postpre_sf12_pcs
-         )
+         ) %>% 
+  mutate(postnatal_depression_score = 
+           as.numeric(edinburg_postnatal_depression_scale_score) %>% 
+           cut(breaks = c(0,9,12,30), 
+               labels = c("range indicating the norm (below 10 points)",
+                      "slightly increased severity PDD symptoms (10-11 points)",
+                      "increased severity of PDD symptoms"),
+               include.lowest = TRUE))
+
 ```
 
 
