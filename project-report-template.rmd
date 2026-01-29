@@ -1,6 +1,6 @@
 ---
-title: "Group project assessment [template]"
-author: '[update with group members'' exam numbers]'
+title: "Group project assessment "
+author: 's2282897'
 date: "`r Sys.Date()`"
 output: html_document
 ---
