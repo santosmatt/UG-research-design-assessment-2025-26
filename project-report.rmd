@@ -14,8 +14,16 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 ## Task 1: Reproducing and improving figures
 
 ```{r importing-required-packages}
+needed_pkgs <- c("tidyverse", "here", "pacman","magrittr","dplyr") #Put your needed package here
 
-pacman::p_load(magrittr, dplyr)
+for (pkg in needed_pkgs) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  } else {
+    library(pkg, character.only = TRUE)
+  }
+}
 
 ```
 
