@@ -35,7 +35,7 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
          postnatal_florishing_scale_score,
          pre_sf_12_pcs_physicalhealthscale,
          post_sf12_pcs,
-         postpre_sf12_pcs
+         postnatal_sf_12_pcs
          ) %>% 
   mutate(postnatal_depression_score = 
            as.numeric(edinburg_postnatal_depression_scale_score) %>% 
@@ -63,6 +63,12 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
 ### Figure 5
 ```{r figure-5}
 # Write your code for reproducing, and then improving Figure 5. Present both figures together. Under the figures, explain how you've improved Figure 5 and why you consider this an improvement.
+
+<- postpartum_depression_data %>% 
+  select(intervention_group, 
+         pre_sf_12_pcs_physicalhealthscale:postnatal_florishing_scale_score)
+  group_by(intervention_group) %>% 
+  summarise(mean_physical_activity = mean())
 ```
 
 
