@@ -15,7 +15,7 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 
 ```{r importing-required-packages}
 
-pacman::p_load(magrittr, dplyr, tidyr, ggplot2,ggtext)
+pacman::p_load(magrittr, dplyr, tidyr, ggplot2, ggtext)
 
 ```
 
@@ -109,18 +109,24 @@ sf_scores_sd_mean %>%
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
              linetype = intervention_group_factor,
-             group = intervention_group_factor)) +
-  geom_line() +
-  theme_light() +
+             group = intervention_group_factor,)) +
+  geom_line(linewidth = 0.25) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.direction = "vertical",
+        axis.title.x = element_markdown(hjust = 0.5),
+        legend.title = element_blank()) +
   scale_y_continuous(limits = c(35,60),
                      labels = scales::label_number(accuracy = 0.01),
                      expand = c(0, 0)) +
   labs(y = "",
-       x = "**Physical health** (*measured witht the Short Form Health Survey - physical subscale*)") +
+       x = "**Physical health** (*measured witht the Short Form Health Survey*
+       *- physical subscale*)") +
   geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
                     ymax = mean_physical_activity_score + sd_physical_activity_score,
-                    width = .02,
-                    linetype = intervention_group_factor)) 
+                    alpha = intervention_group_factor),
+                width = .02,
+                linetype = "solid") 
 ```
 
 Inconsistent data types
