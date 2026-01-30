@@ -67,74 +67,132 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
 
 ```
 
-### Figure 3
+### Figure 3 Reproduction
 ```{r figure-3}
-#Figure 3 Data Wrangling
-fig3_raw <- hiit_ppd_raw %>% 
-  mutate(
-    group_code = `Intervention group`,
-    epds = as.numeric(`Edinburg Postnatal Depression Scale Score`)
-  ) %>% 
-  select(group_code, epds)
+# A quick check how many bad EPDS values are "NULL"
+hiit_ppd_raw %>% 
+  count(`Edinburg Postnatal Depression Scale Score` == "#NULL!") # bad epds NULL
 
-# Data Classification
-fig3_raw <- fig3_raw %>% 
+# Fig 3 Data wrangling
+fig3_raw <- hiit_ppd_raw %>%
   mutate(
     group = case_when(
-      group_code == 1 ~ "HIIT",
-      group_code == 2 ~ "EDU",
+      `Intervention group` == 1 ~ "HIIT",
+      `Intervention group` == 2 ~ "EDU",
       TRUE ~ NA_character_
     ),
+    epds = `Edinburg Postnatal Depression Scale Score` %>%
+      na_if("#NULL!") %>%
+      as.numeric(),
+    post_bdi2 = `POST depression BDI-II score` %>%
+      na_if("#NULL!") %>%
+      as.numeric()
+  ) %>%
+  filter(!is.na(group), !is.na(epds), !is.na(post_bdi2)) %>%  # ensures HIIT=34, EDU=19
+  mutate(
     epds_cat = case_when(
-      is.na(epds) ~ NA_character_,
-      epds < 10 ~ "<10",
-      epds >= 10 & epds <= 11 ~ "10-11",
-      epds >= 12 ~ "≥12"
+      epds < 10  ~ "<10",
+      epds <= 11 ~ "10-11",
+      TRUE       ~ "≥12"
     ),
-    epds_cat = factor(epds_cat, levels = c("<10", "10-11", "≥12"))
-  ) %>% 
-  filter(!is.na(group), !is.na(epds_cat)) # exclude NAs
+    epds_cat = factor(epds_cat, levels = c("<10", "10-11", "≥12")),
+    group = factor(group, levels = c("HIIT", "EDU"))
+  )
 
-fig3_sum <- fig3_raw %>% 
-  count(group, epds_cat) %>% 
-  group_by(group) %>% 
+# Summarise for stacked proportions
+fig3_sum <- fig3_raw %>%
+  count(group, epds_cat, name = "n") %>%
+  group_by(group) %>%
   mutate(
     pct = n / sum(n),
     label = paste0(round(pct * 100, 1), "%")
-  ) %>% 
+  ) %>%
   ungroup()
 
-# Figure Representation
-ggplot(fig3_sum, aes(
-  x = factor(group,
-             levels = c("EDU", "HIIT"),
-             labels = c("EDU - Educational Intervention Group",
-                        "HIIT - High Intensity Interval Training Group")), 
-  y = pct, 
-  fill = epds_cat)
-  ) +
+fig3_sum %>% group_by(group) %>% summarise(total = sum(n), .groups = "drop") #sanity check
+
+
+# Figure Plot (Original)
+ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
   geom_col(width = 0.25, position = position_stack(reverse = TRUE)) +
   coord_flip() +
   scale_y_continuous(
     limits = c(0, 1),
     breaks = seq(0, 1, 0.1),
-    labels = function(x) sprintf("%.2f%%", x * 100)
+    labels = scales::percent_format(accuracy = 0.01)
   ) +
-  scale_fill_discrete(labels = c(
-    "<10" = "range indicating the norm (below 10 points)",
-    "10-11" = "slightly increased severity of PPD symptoms (10-11 points)",
-    "≥12" = "increased severity of PPD symptoms (12 or more points"
-  ))+
-  labs(
-    x = NULL,
-    y = NULL,
-    fill = NULL
+  scale_fill_manual(
+    values = c("<10" = "#8DB6F8",
+               "10-11" = "#083B92",
+               "≥12"  = "#C32113"),
+    labels = c(
+      "<10" = "range indicating the norm (below 10 points)",
+      "10-11" = "slightly increased severity of PPD symptoms (10–11 points)",
+      "≥12" = "increased severity of PPD symptoms (12 or more points)"
+    )
   ) +
+  scale_x_discrete(
+    labels = c(
+      "HIIT" = "HIIT – High Intensity Interval Training Group",
+      "EDU"  = "EDU – Educational Intervention Group"
+    )
+  ) +
+  labs(x = NULL, y = NULL, fill = NULL) +
   theme_minimal(base_size = 12) +
   theme(
     legend.position = "bottom",
-    legend.direction = "vertical",
-    panel.grid.minor = element_blank()
+    legend.direction = "vertical"
+  )
+```
+
+### Figure 3 Improvement (75 words)
+The original Figure 3 is a 100% stacked bar chart, which makes it hard to compare the HIIT and EDU groups within each EPDS category because differences must be visually estimated from segment lengths. We improved readability by switching to a grouped bar chart (side-by-side bars for HIIT vs EDU in each category), allowing direct group comparisons for each cut-off band. We also added percentage labels to remove ambiguity and reduce reliance on visual approximation.
+```{r}
+fig3_sum_imp <- fig3_raw %>%
+  count(group, epds_cat, name = "n") %>%
+  group_by(group) %>%
+  mutate(pct = n / sum(n) * 100) %>%
+  ungroup()
+
+# group totals for legend labels
+group_totals <- fig3_sum_imp %>%
+  group_by(group) %>%
+  summarise(total = sum(n), .groups = "drop")
+
+# 2) Improved Plot
+ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(
+    aes(label = paste0(round(pct, 1), "%")),
+    position = position_dodge(width = 0.8),
+    vjust = -0.5,
+    size = 3
+  ) +
+  scale_fill_manual(
+    values = c("HIIT" = "#0072B2", "EDU" = "#D55E00"),
+    breaks = c("HIIT", "EDU"),
+    labels = paste0(group_totals$group, " (n=", group_totals$total, ")")
+  ) +
+  scale_x_discrete(
+    labels = c(
+      "<10"   = "<10 (No depression)",
+      "10-11" = "10–11 (Borderline)",
+      "≥12"   = "≥12 (Elevated)"
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, 10),
+    expand = expansion(mult = c(0, 0.10))
+  ) +
+  labs(
+    x = "Postpartum EPDS category",
+    y = "Participants (%)",
+    fill = "Group"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "top"
   )
 ```
 
