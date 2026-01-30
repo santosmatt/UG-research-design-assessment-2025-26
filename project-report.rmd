@@ -100,22 +100,27 @@ sf_scores_sd_mean <- postpartum_depression_data %>%
         intervention_group,
         levels = c(
           "1",
-          "2",),
+          "2"),
         labels = c(
-          "Before the intevention \n(II trimester of pregnancy)",
-          "After the intervention \n(III trimester of pregnancy)",)))
+          "HIIT - High Intensity Interval Training Group",
+          "EDU - Educational Intervention Group")))
 
 sf_scores_sd_mean %>% 
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
+             linetype = intervention_group_factor,
              group = intervention_group_factor)) +
   geom_line() +
   theme_light() +
+  scale_y_continuous(limits = c(35,60),
+                     labels = scales::label_number(accuracy = 0.01),
+                     expand = c(0, 0)) +
   labs(y = "",
        x = "**Physical health** (*measured witht the Short Form Health Survey - physical subscale*)") +
   geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
                     ymax = mean_physical_activity_score + sd_physical_activity_score,
-                    width = .02)) 
+                    width = .02,
+                    linetype = intervention_group_factor)) 
 ```
 
 Inconsistent data types
@@ -123,7 +128,7 @@ Nulls not handelled well
 Did not mention that people who did not do all scores where removed
 Column names not consistent 
 Add label on y column, title etc 
-
+no explict mention of what intevention gorup each in
 
 ## Task 2: FAIR data principles
 
