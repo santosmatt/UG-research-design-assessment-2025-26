@@ -149,7 +149,7 @@ ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
     size = 3
   ) +
   scale_fill_manual(
-    values = c("HIIT" = "#0072B2", "EDU" = "#D55E00"),
+    values = c("HIIT" = "#C32113", "EDU" = "#083B92"),
     breaks = c("HIIT", "EDU"),
     labels = paste0(group_totals$group, " (n=", group_totals$total, ")")
   ) +
@@ -186,29 +186,14 @@ fig4_long <- hiit_ppd_raw %>%
       `Intervention group` == 2 ~ "EDU",
       TRUE ~ NA_character_
     ),
-    post_bdi2 = `POST depression BDI-II score` %>%
-      as.character() %>%
-      na_if("#NULL!") %>%
-      as.numeric(), 
-
-    pre_fs  = `PRE FS scale` %>%
-      as.character() %>%
-      na_if("#NULL!") %>%
-      as.numeric(),
-
-    post_fs = `POST FS score` %>%
-      as.character() %>%
-      na_if("#NULL!") %>%
-      as.numeric(),
-
-    postnatal_fs = `Postnatal Florishing scale score` %>%
-      as.character() %>%
-      na_if("#NULL!") %>%
-      as.numeric()
+    post_bdi2    = as.numeric(`POST depression BDI-II score`),
+    pre_fs       = as.numeric(`PRE FS scale`),
+    post_fs      = as.numeric(`POST FS score`),
+    postnatal_fs = as.numeric(`Postnatal Florishing scale score`)
   ) %>%
   filter(
     !is.na(group),
-    !is.na(post_bdi2),      # Remove all the NULLS
+    !is.na(post_bdi2),
     !is.na(pre_fs),
     !is.na(post_fs),
     !is.na(postnatal_fs)
@@ -228,7 +213,9 @@ fig4_long <- hiit_ppd_raw %>%
         "Before the intervention\n(II trimester of pregnancy)",
         "After the intervention\n(III trimester of pregnancy)",
         "Follow-up\n(± 5 months postpartum)"
-      )))
+      )
+    )
+  )
 
 fig4_sum <- fig4_long %>%
   group_by(group, time) %>%
@@ -236,7 +223,7 @@ fig4_sum <- fig4_long %>%
     mean = mean(fs, na.rm = TRUE),
     sd   = sd(fs, na.rm = TRUE),
     .groups = "drop"
-  ) # Summary for plots
+  )
 
 fig4_lab <- fig4_sum %>%
   group_by(time) %>%
@@ -244,12 +231,12 @@ fig4_lab <- fig4_sum %>%
     nudge_y = if_else(mean == max(mean, na.rm = TRUE), 0.55, -0.55),
     nudge_x = if_else(time == levels(time)[3], 0.12, -0.12)
   ) %>%
-  ungroup()
+  ungroup() # arrange the tabs
 
-ggplot(fig4_sum, aes(x = time, y = mean, group = group, linetype = group)) +
+ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
-                width = 0.08, linewidth = 0.6) +
-  geom_line(linewidth = 0.8) +
+                width = 0.08, linewidth = 0.6, color = "black") +
+  geom_line(aes(linetype = group), linewidth = 0.8) +
   geom_point(size = 2.2)+
   geom_text(
     data = fig4_lab,
@@ -282,100 +269,66 @@ ggplot(fig4_sum, aes(x = time, y = mean, group = group, linetype = group)) +
     legend.position = "bottom",
     legend.direction = "vertical"
   )
-
 ```
-
 
 ```{r}
-# Load required library
-library(tidyverse)
+pd <- position_dodge(width = 0.4)
 
-tidy_data <- hiit_ppd_raw %>%
-  # Select relevant columns and rename for clarity
-  select(group = `Intervention group`, 
-         Pre = `PRE FS scale`, 
-         Post = `POST FS score`, 
-         Postpartum = `Postnatal Florishing scale score`) %>%
-  # Pivot to long format: one row per participant per time
-  pivot_longer(cols = c(Pre, Post, Postpartum), names_to = "Time", values_to = "Flourishing") %>%
-  # Recode group and time as factors with meaningful labels
-  mutate(group = factor(group, levels = c(1, 2), labels = c("HIIT", "EDU")),
-         Time = factor(Time, levels = c("Pre", "Post", "Postpartum")))
-
-# 2. Compute group-wise summary statistics (mean and 95% CI) ----
-summary_df <- tidy_data %>%
-  group_by(group, Time) %>%
-  summarise(
-    n = sum(!is.na(Flourishing)),                   # sample size per group per time
-    mean = mean(Flourishing, na.rm = TRUE),         # mean flourishing score
-    sd   = sd(Flourishing, na.rm = TRUE)            # standard deviation
-  ) %>%
-  mutate(
-    se    = sd / sqrt(n),                           # standard error
-    ci    = qt(0.975, df = n - 1) * se,             # 95% confidence interval half-width
-    lower = mean - ci, 
-    upper = mean + ci
-  )
-
-# Prepare labels for plotting mean values (offset higher group label above the lower)
-summary_df <- summary_df %>%
-  group_by(Time) %>%
-  mutate(label   = round(mean, 1),
-         label_y = ifelse(mean == max(mean, na.rm = TRUE),
-                          mean + 0.3,    # place label slightly above higher mean
-                          mean - 0.3))   # place label slightly below lower mean
-
-# 3. Create the line plot with ggplot2 ----
-# Define color-blind friendly colors and shapes for the two groups
-group_colors  <- c("HIIT" = "#0072B2", "EDU" = "#D55E00")  # blue for HIIT, orange for EDU
-group_shapes  <- c("HIIT" = 16, "EDU" = 17)               # 16 = circle, 17 = triangle
-group_lines   <- c("HIIT" = "solid", "EDU" = "dashed")    # solid line for HIIT, dashed for EDU
-
-# Calculate position for significance asterisk (above EDU group's postpartum point)
-edu_post_upper <- summary_df %>% filter(group == "EDU", Time == "Postpartum") %>% pull(upper)
-
-p <- ggplot(summary_df, aes(x = as.numeric(Time), y = mean, color = group)) +
-  # Mean trends for each group
-  geom_line(aes(linetype = group), size = 1) +
-  geom_point(aes(shape = group), size = 3) +
-  # Error bars for 95% CI
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1) +
-  # Numeric mean value labels (higher group label above the lower)
-  geom_text(aes(y = label_y, label = label), show.legend = FALSE, size = 3) +
-  # Direct labels for each line at the final time point (group names)
-  geom_text(data = filter(summary_df, Time == "Postpartum"),
-            aes(label = group), fontface = "bold",
-            nudge_x = 0.15, show.legend = FALSE) +
-  # Annotation: asterisk marking significant within-group change for EDU
-  annotate("text", x = 3, y = edu_post_upper + 0.5, 
-           label = "*", color = "#D55E00", size = 6) +
-  # Color, shape, and linetype scales
-  scale_color_manual(values = group_colors) +
-  scale_shape_manual(values = group_shapes) +
-  scale_linetype_manual(values = group_lines) +
-  # Define discrete time points on x-axis with T1, T2, T3 labels and descriptions
-  scale_x_continuous(breaks = 1:3,
-                     labels = c("T1\n(Baseline)", 
-                                "T2\n(Post-intervention)", 
-                                "T3\n(5-mo postpartum)"),
-                     expand = expansion(mult = c(0.05, 0.1))) +
-  # Axis labels (bold outcome name, italicized scale description) and caption
-  labs(x = "Time of assessment",
-       y = expression(bold("Psychological well-being") * " (" * italic("Flourishing Scale") * " score)"),
-       caption = "Mean flourishing (psychological well-being) scores at baseline (T1), post-intervention (T2), and 5 months postpartum (T3) for HIIT and EDU groups. Both groups showed a slight increase from T1 to T2. By T3, only the EDU group experienced a significant drop in well-being from its post-intervention level (marked with *), whereas the HIIT group maintained their post-intervention scores:contentReference[oaicite:0]{index=0}.") +
-  # Theme for a clean, publication-ready look
-  theme_classic(base_size = 14) +
+ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
+  geom_errorbar(
+    aes(ymin = mean - sd, ymax = mean + sd, color = group), # Error bars with color
+    width = 0.08,
+    linewidth = 0.6,
+    position = pd
+  ) +
+  geom_line(aes(linetype = group, color = group), # Line with color
+            linewidth = 0.8,
+            position = pd) +
+  geom_point(aes(color = group), # Points with color
+             size = 2.2,
+             position = pd) +
+geom_text(
+    data = fig4_lab,
+    aes(x = as.numeric(time) + nudge_x,
+        y = mean + nudge_y,
+        label = sprintf("M = %.2f", mean),
+        color = group),
+    size = 3
+  )+
+  scale_color_manual(
+    values = c("HIIT" = "#C32113", "EDU" = "#083B92"),
+    labels = c("HIIT – High Intensity Interval Training Group",
+               "EDU – Educational Intervention Group")
+  ) +
+  scale_linetype_manual(
+    values = c("HIIT" = "solid", "EDU" = "dotted"),
+    labels = c("HIIT – High Intensity Interval Training Group",
+               "EDU – Educational Intervention Group")
+  ) +
+  scale_y_continuous(
+    limits = c(40, 60),
+    breaks = seq(40, 60, 2),
+    labels = function(x) sprintf("%.2f", x)
+  ) +
+  labs(
+    x = "<b>Psychological well-being</b> <i>(measured with the Flourishing Scale)</i>",
+    y = NULL,
+    color = NULL,
+    linetype = NULL
+  ) +
+  theme_light() +
   theme(
-    legend.position = "none",            # remove legend (lines are labeled directly)
-    axis.title.x = element_text(face = "bold"),
-    axis.title.y = element_text(face = "bold"),
-    plot.caption = element_text(hjust = 0)
+    axis.title.x = element_markdown(
+      size = 12,
+      margin = margin(t = 10, b = 5)
+    ),
+    legend.position = "bottom",
+    legend.direction = "vertical"
   )
-
-# 4. Display the plot
-print(p)
 
 ```
+
+
 
 ### Figure 5
 ```{r figure-5}
