@@ -64,6 +64,7 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
 ```{r figure-5}
 # Write your code for reproducing, and then improving Figure 5. Present both figures together. Under the figures, explain how you've improved Figure 5 and why you consider this an improvement.
 
+#Data wrangling
 sf_scores_sd_mean <- postpartum_depression_data %>% 
   select(intervention_group, 
          pre_sf_12_pcs_physicalhealthscale,
@@ -105,6 +106,7 @@ sf_scores_sd_mean <- postpartum_depression_data %>%
           "HIIT - High Intensity Interval Training Group",
           "EDU - Educational Intervention Group")))
 
+#Plotting graph copy
 sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
@@ -140,6 +142,49 @@ sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>%
        x = "**Physical health** (*measured with the Short Form Health Survey - physical subscale*)") 
 
 sf_scores_sd_mean_graph_copy  
+
+#Improving graph 
+
+sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>% 
+  ggplot(aes(x = time_of_survey,
+             y = mean_physical_activity_score,
+             linetype = intervention_group_factor,
+             group = intervention_group_factor)) +
+  geom_line(linewidth = 0.25) +
+  geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
+                    ymax = mean_physical_activity_score + sd_physical_activity_score,
+                    alpha = intervention_group_factor),
+                width = .015,
+                linetype = "solid",
+                show.legend = FALSE) +
+  scale_alpha_manual(values = c(0.3,1)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  ggrepel::geom_text_repel(aes(
+    label = paste("M = ", round(mean_physical_activity_score, 2))),
+    size = 3,
+    nudge_x = -0.15,
+    force = 2,
+    box.padding = 0.2,
+    direction = "y") +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "bottom",
+        legend.direction = "vertical",
+        axis.title.x = element_markdown(hjust = 0.5, size = 12),
+        axis.title.y = element_markdown(angle = 90, vjust = 0.5),
+        legend.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major.x = element_blank()) +
+  scale_y_continuous(limits = c(35,60),
+                     labels = scales::label_number(accuracy = 0.01),
+                     expand = c(0, 0)) +
+  labs(title = "Changes in physical health overtime",
+       subtitle = "Mean (± SD) physical health score of HIIT and EDU group", 
+       y = "Mean physical health score (± SD)",
+       x = "Time of Survey",
+       caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey physical subscale", width = 100))
+
+sf_scores_sd_mean_graph_improved_version
+
 ```
 
 Inconsistent data types
