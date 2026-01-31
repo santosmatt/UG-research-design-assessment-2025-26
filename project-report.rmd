@@ -437,7 +437,6 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
        x = "Time of Survey",
        caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale.", width = 100))
 
-
 sf_scores_sd_mean_graph_improved_version
 ```
 
