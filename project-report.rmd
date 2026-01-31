@@ -1,6 +1,6 @@
 ---
 title: "Group project assessment"
-author: 'B229565'
+author: 'B229565, B249217'
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -453,11 +453,8 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
        subtitle = "Mean (± SD) physical health score of HIIT and EDU group", 
        y = "Mean physical health score (± SD)",
        x = "Time of Survey",
-<<<<<<< HEAD
        caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale.", width = 100))
-=======
-       caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale", width = 100))
->>>>>>> 884a83b17d0d9d03c0fc5994618245ffacb48828
+
 
 sf_scores_sd_mean_graph_improved_version
 
