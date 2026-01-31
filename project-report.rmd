@@ -14,12 +14,7 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 ## Task 1: Reproducing and improving figures
 
 ```{r importing-required-packages}
-<<<<<<< HEAD
-
-pacman::p_load(magrittr, dplyr, tidyr, ggplot2, ggtext)
-
-=======
-needed_pkgs <- c("tidyverse", "here", "ggtext")
+needed_pkgs <- c("tidyverse", "here", "ggtext", "magrittr", "dplyr", "tidyr")
 for (pkg in needed_pkgs) {
 if (!require(pkg, character.only = TRUE)) {
 install.packages(pkg)
@@ -27,10 +22,8 @@ library(pkg, character.only = TRUE)
 } else {
 library(pkg, character.only = TRUE)
 }}
->>>>>>> 884a83b17d0d9d03c0fc5994618245ffacb48828
-```
 
-pacman::p_load(magrittr, dplyr, tidyr, ggplot2, ggtext)
+```
 
 ```{r load-wrangle}
 hiit_ppd_raw <-read_csv(here("data", "HIIT-postpartum-depression.csv"), na = c("", "NA", "#NULL!", "NULL")) 
@@ -60,30 +53,6 @@ fig3_raw <- hiit_ppd_raw %>%
     group = factor(group, levels = c("HIIT", "EDU"))
   )
 
-```{r load-wrangle}
-# load and wrangle the data here
-
-postpartum_depression_data_raw <- 
-  readr::read_csv(here::here("data", "HIIT-postpartum-depression.csv")) %>% 
-  janitor::clean_names()
-
-postpartum_depression_data <- postpartum_depression_data_raw %>% 
-  select(intervention_group, 
-         edinburg_postnatal_depression_scale_score, 
-         pre_fs_scale,
-         post_fs_score,
-         postnatal_florishing_scale_score,
-         pre_sf_12_pcs_physicalhealthscale,
-         post_sf12_pcs,
-         postnatal_sf_12_pcs
-         ) %>% 
-  mutate(postnatal_depression_score = 
-           as.numeric(edinburg_postnatal_depression_scale_score) %>% 
-           cut(breaks = c(0,9,12,30), 
-               labels = c("range indicating the norm (below 10 points)",
-                      "slightly increased severity PDD symptoms (10-11 points)",
-                      "increased severity of PDD symptoms"),
-               include.lowest = TRUE))
 # Summarise for stacked proportions
 fig3_sum <- fig3_raw %>%
   count(group, epds_cat, name = "n") %>%
@@ -141,7 +110,7 @@ group_totals <- fig3_sum_imp %>%
   group_by(group) %>%
   summarise(total = sum(n), .groups = "drop")
 
-# 2) Improved Plot
+# Improved Plot
 ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
   geom_col(position = position_dodge(width = 0.8), width = 0.7) +
   geom_text(
@@ -333,49 +302,63 @@ geom_text(
 
 ### Figure 5
 ```{r figure-5}
-# Write your code for reproducing, and then improving Figure 5. Present both figures together. Under the figures, explain how you've improved Figure 5 and why you consider this an improvement.
+# Figure 5 Data wrangling
+fig5_raw <- hiit_ppd_raw %>% 
+  select(`Intervention group`,
+         `Edinburg Postnatal Depression Scale Score`,
+         `PRE FS scale`,
+         `POST FS score`,
+         `Postnatal Florishing scale score`,
+         `PRE SF-12 (PCS) physicalhealthscale`,
+         `POST SF12 (PCS)`,
+         `Postnatal SF-12 PCS`
+         ) %>% 
+  mutate(postnatal_depression_score = 
+           as.numeric(`Edinburg Postnatal Depression Scale Score`) %>% 
+           cut(breaks = c(0,9,12,30), 
+               labels = c("range indicating the norm (below 10 points)",
+                      "slightly increased severity PDD symptoms (10-11 points)",
+                      "increased severity of PDD symptoms"),
+               include.lowest = TRUE))
 
-#Data wrangling
-sf_scores_sd_mean <- postpartum_depression_data %>% 
-  select(intervention_group, 
-         pre_sf_12_pcs_physicalhealthscale,
-         post_sf12_pcs,
-         postnatal_sf_12_pcs) %>%
+sf_scores_sd_mean <- fig5_raw %>% 
+  select(`Intervention group`,
+         `PRE SF-12 (PCS) physicalhealthscale`,
+         `POST SF12 (PCS)`,
+         `Postnatal SF-12 PCS`) %>%
   #two columns where string not numeric
-  mutate(postnatal_sf_12_pcs = as.numeric(postnatal_sf_12_pcs),
-         post_sf12_pcs = as.numeric(post_sf12_pcs)) %>% 
+  mutate(`PRE SF-12 (PCS) physicalhealthscale` = as.numeric(`PRE SF-12 (PCS) physicalhealthscale`),
+          `POST SF12 (PCS)` = as.numeric(`POST SF12 (PCS)`),
+         `Postnatal SF-12 PCS` = as.numeric(`Postnatal SF-12 PCS`)) %>% 
   #removing those from analysis who missed one or more surveys
-  filter(!is.na(postnatal_sf_12_pcs),
-         !is.na(post_sf12_pcs)) %>% 
-  pivot_longer(pre_sf_12_pcs_physicalhealthscale:postnatal_sf_12_pcs,
+  filter(!is.na(`POST SF12 (PCS)`),
+         !is.na(`Postnatal SF-12 PCS`)) %>% 
+  pivot_longer(cols = c(`PRE SF-12 (PCS) physicalhealthscale`,
+                        `POST SF12 (PCS)`,
+                        `Postnatal SF-12 PCS`),
                names_to = "time_of_survey",
                values_to = "score") %>% 
-  group_by(intervention_group,time_of_survey) %>% 
+  group_by(`Intervention group`, time_of_survey) %>% 
   summarise(mean_physical_activity_score = mean(score),
-            sd_physical_activity_score = sd(score)) %>% 
+            sd_physical_activity_score = sd(score),
+            .groups = "drop") %>% 
   #Renaming time_of_survey and intervention_group and changing to factor
   #Ensures have correct labels and allows for correct order/grouping
   mutate(time_of_survey = 
       factor(
         time_of_survey,
-        levels = c(
-          "pre_sf_12_pcs_physicalhealthscale",
-          "post_sf12_pcs",
-          "postnatal_sf_12_pcs"),
-        labels = c(
-          "Before the intevention \n(II trimester of pregnancy)",
-          "After the intervention \n(III trimester of pregnancy)",
-          "Follow-up \n(± 5 months postpartum)")),
-      
+        levels = c("PRE SF-12 (PCS) physicalhealthscale",
+                   "POST SF12 (PCS)",
+                   "Postnatal SF-12 PCS"),
+        labels = c("Before the intevention \n(II trimester of pregnancy)",
+                   "After the intervention \n(III trimester of pregnancy)",
+                   "Follow-up \n(± 5 months postpartum)")),
       intervention_group_factor = 
       factor(
-        intervention_group,
-        levels = c(
-          "1",
-          "2"),
-        labels = c(
-          "HIIT - High Intensity Interval Training Group",
-          "EDU - Educational Intervention Group")))
+        `Intervention group`,
+        levels = c("1","2"),
+        labels = c("HIIT - High Intensity Interval Training Group",
+                   "EDU - Educational Intervention Group")))
 
 #Plotting graph copy
 sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
@@ -387,7 +370,7 @@ sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>%
   geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
                     ymax = mean_physical_activity_score + sd_physical_activity_score,
                     alpha = intervention_group_factor),
-                width = .015,
+                width = 0.15,
                 linetype = "solid",
                 show.legend = FALSE) +
   scale_alpha_manual(values = c(0.3,1)) +
@@ -415,7 +398,6 @@ sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>%
 sf_scores_sd_mean_graph_copy  
 
 #Improving graph 
-
 sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>% 
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
@@ -457,7 +439,6 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
 
 
 sf_scores_sd_mean_graph_improved_version
-
 ```
 
 Inconsistent data types
