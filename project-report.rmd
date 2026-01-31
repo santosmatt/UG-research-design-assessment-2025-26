@@ -173,7 +173,8 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
         axis.title.y = element_markdown(angle = 90, vjust = 0.5),
         legend.title = element_blank(),
         axis.ticks = element_blank(),
-        panel.grid.major.x = element_blank()) +
+        panel.grid.major.x = element_blank(),
+        plot.caption = element_text(hjust = 0)) +
   scale_y_continuous(limits = c(35,60),
                      labels = scales::label_number(accuracy = 0.01),
                      expand = c(0, 0)) +
@@ -181,7 +182,7 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
        subtitle = "Mean (± SD) physical health score of HIIT and EDU group", 
        y = "Mean physical health score (± SD)",
        x = "Time of Survey",
-       caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey physical subscale", width = 100))
+       caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale", width = 100))
 
 sf_scores_sd_mean_graph_improved_version
 
