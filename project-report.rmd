@@ -115,16 +115,18 @@ sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>%
                     ymax = mean_physical_activity_score + sd_physical_activity_score,
                     alpha = intervention_group_factor),
                 width = .015,
-                linetype = "solid") +
-   scale_alpha_manual(values = c(0.3,1)) +
-  ggrepel::geom_text_repel(
-    aes(label = paste("M = ", round(mean_physical_activity_score, 2))),
+                linetype = "solid",
+                show.legend = FALSE) +
+  scale_alpha_manual(values = c(0.3,1)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  ggrepel::geom_text_repel(aes(
+    label = paste("M = ", round(mean_physical_activity_score, 2))),
     size = 3,
     nudge_x = -0.15,
-    force = 3,
-    box.padding = 0.1,
+    force = 2,
+    box.padding = 0.2,
     direction = "y") +
-  theme_bw( base_size = 12) +
+  theme_bw(base_size = 12) +
   theme(legend.position = "bottom",
         legend.direction = "vertical",
         axis.title.x = element_markdown(hjust = 0.5, size = 12),
@@ -136,7 +138,8 @@ sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>%
                      expand = c(0, 0)) +
   labs(y = "",
        x = "**Physical health** (*measured with the Short Form Health Survey - physical subscale*)") 
-  
+
+sf_scores_sd_mean_graph_copy  
 ```
 
 Inconsistent data types
