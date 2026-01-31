@@ -78,7 +78,6 @@ fig3_raw <- hiit_ppd_raw %>%
     group = factor(group, levels = c("HIIT", "EDU"))
   )
 
-
 # Summarise for stacked proportions
 fig3_sum <- fig3_raw %>%
   count(group, epds_cat, name = "n") %>%
@@ -88,9 +87,6 @@ fig3_sum <- fig3_raw %>%
     label = paste0(round(pct * 100, 1), "%")
   ) %>%
   ungroup()
-
-fig3_sum %>% group_by(group) %>% summarise(total = sum(n), .groups = "drop") #sanity check
-
 
 # Figure Plot (Original)
 ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
@@ -125,7 +121,7 @@ ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
   )
 ```
 
-### Figure 3 Improvement (75 words)
+### Figure 3 Improvements (75 words)
 The original Figure 3 is a 100% stacked bar chart, which makes it hard to compare the HIIT and EDU groups within each EPDS category because differences must be visually estimated from segment lengths. We improved readability by switching to a grouped bar chart (side-by-side bars for HIIT vs EDU in each category), allowing direct group comparisons for each cut-off band. We also added percentage labels to remove ambiguity and reduce reliance on visual approximation.
 ```{r}
 fig3_sum_imp <- fig3_raw %>%
@@ -177,7 +173,8 @@ ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
 ```
 
 
-### Figure 4
+### Figure 4 Reproduction
+The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see.
 ```{r figure-4}
 fig4_long <- hiit_ppd_raw %>%
   mutate(
@@ -271,6 +268,7 @@ ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
   )
 ```
 
+### Figure 4 Improvements
 ```{r}
 pd <- position_dodge(width = 0.4)
 
