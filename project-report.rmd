@@ -300,14 +300,15 @@ geom_text(
 
 ```
 
-
-
 ### Figure 5
 ```{r figure-5}
 # Write your code for reproducing, and then improving Figure 5. Present both figures together. Under the figures, explain how you've improved Figure 5 and why you consider this an improvement.
 ```
 
 
-## Task 2: FAIR data principles
-
+## Task 2: FAIR data principles (254 words)
+From the Findable perspective, the data set has several shortcomings. The data set is not hosted on any recognized public data repository, making it difficult to discover through academic search engines. So, the dataset only accessible as supplementary material to the original publication. In terms of Accessible, the dataset is technically easy to open and doesn't require authentication. However, since it's not hosted on an open data platform and lacks a clear open-access license, there is ambiguity around practical accessibility. Regarding Interoperability, the dataset uses a universal format, and variable names are in plain English, which is a plus. But inconsistencies in variable naming such as `Edinburg Postnatal Depression Scale Score` including spaces, and non-standard entries like `#NULL` make programmatic access and automated processing harder. Finally, the biggest issue is with Reusability. There is no accompanying file such as README or data dictionary, so even if someone finds the dataset, they cannot quickly understand its context (e.g. it's unclear what `POST FS score` vs. `Postnatal Florishing scale score` means without cross-referencing the paper), structure, and variables. The absence of information about scoring methods (e.g., how EPDS scores were derived), sample size decisions, or missing data handling further reduces reproducibility. Moreover, there is no licence or reuse guidance, making it legally ambiguous whether others can republish or adapt the data. In summary, while the dataset includes valuable psychological and intercention variables, it currently does not meet core FAIR principles and would require better documentation, clearer structure, and public hosting to be truly reusable and shareable.
 ## Task 3: Reproducibility brief
+
+
+
