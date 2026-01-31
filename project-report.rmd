@@ -1,6 +1,6 @@
 ---
-title: "Group project assessment [template]"
-author: '[update with group members'' exam numbers]'
+title: "Group project assessment"
+author: 'B229565'
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -14,11 +14,45 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 ## Task 1: Reproducing and improving figures
 
 ```{r importing-required-packages}
+needed_pkgs <- c("tidyverse", "here", "ggtext")
+for (pkg in needed_pkgs) {
+if (!require(pkg, character.only = TRUE)) {
+install.packages(pkg)
+library(pkg, character.only = TRUE)
+} else {
+library(pkg, character.only = TRUE)
+}}
+```
 
 pacman::p_load(magrittr, dplyr, tidyr, ggplot2, ggtext)
 
+```{r load-wrangle}
+hiit_ppd_raw <-read_csv(here("data", "HIIT-postpartum-depression.csv"), na = c("", "NA", "#NULL!", "NULL")) 
 ```
 
+### Figure 3 Reproduction
+```{r figure-3}
+# Fig 3 Data wrangling
+fig3_raw <- hiit_ppd_raw %>%
+  mutate(
+    group = case_when(
+      `Intervention group` == 1 ~ "HIIT",
+      `Intervention group` == 2 ~ "EDU",
+      TRUE ~ NA_character_
+    ),
+    epds = as.numeric(`Edinburg Postnatal Depression Scale Score`),
+    post_bdi2 = as.numeric(`POST depression BDI-II score`)
+  ) %>%
+  filter(!is.na(group), !is.na(epds), !is.na(post_bdi2)) %>%
+  mutate(
+    epds_cat = case_when(
+      epds < 10  ~ "<10",
+      epds <= 11 ~ "10-11",
+      TRUE       ~ "≥12"
+    ),
+    epds_cat = factor(epds_cat, levels = c("<10", "10-11", "≥12")),
+    group = factor(group, levels = c("HIIT", "EDU"))
+  )
 
 ```{r load-wrangle}
 # load and wrangle the data here
@@ -44,21 +78,252 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
                       "slightly increased severity PDD symptoms (10-11 points)",
                       "increased severity of PDD symptoms"),
                include.lowest = TRUE))
+# Summarise for stacked proportions
+fig3_sum <- fig3_raw %>%
+  count(group, epds_cat, name = "n") %>%
+  group_by(group) %>%
+  mutate(
+    pct = n / sum(n),
+    label = paste0(round(pct * 100, 1), "%")
+  ) %>%
+  ungroup()
 
+# Figure Plot (Original)
+ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
+  geom_col(width = 0.25, position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, 0.1),
+    labels = scales::percent_format(accuracy = 0.01)
+  ) +
+  scale_fill_manual(
+    values = c("<10" = "#8DB6F8",
+               "10-11" = "#083B92",
+               "≥12"  = "#C32113"),
+    labels = c(
+      "<10" = "range indicating the norm (below 10 points)",
+      "10-11" = "slightly increased severity of PPD symptoms (10–11 points)",
+      "≥12" = "increased severity of PPD symptoms (12 or more points)"
+    )
+  ) +
+  scale_x_discrete(
+    labels = c(
+      "HIIT" = "HIIT – High Intensity Interval Training Group",
+      "EDU"  = "EDU – Educational Intervention Group"
+    )
+  ) +
+  labs(x = NULL, y = NULL, fill = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  )
 ```
 
+### Figure 3 Improvements (75 words)
+The original Figure 3 is a 100% stacked bar chart, which makes it hard to compare the HIIT and EDU groups within each EPDS category because differences must be visually estimated from segment lengths. We improved readability by switching to a grouped bar chart (side-by-side bars for HIIT vs EDU in each category), allowing direct group comparisons for each cut-off band. We also added percentage labels to remove ambiguity and reduce reliance on visual approximation.
+```{r}
+fig3_sum_imp <- fig3_raw %>%
+  count(group, epds_cat, name = "n") %>%
+  group_by(group) %>%
+  mutate(pct = n / sum(n) * 100) %>%
+  ungroup()
 
-### Figure 3
-```{r figure-3}
-# Write your code for reproducing, and then improving Figure 3. Present both figures together. Under the figures, explain how you've improved Figure 3 and why you consider this an improvement.
+# group totals for legend labels
+group_totals <- fig3_sum_imp %>%
+  group_by(group) %>%
+  summarise(total = sum(n), .groups = "drop")
+
+# 2) Improved Plot
+ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(
+    aes(label = paste0(round(pct, 1), "%")),
+    position = position_dodge(width = 0.8),
+    vjust = -0.5,
+    size = 3
+  ) +
+  scale_fill_manual(
+    values = c("HIIT" = "#C32113", "EDU" = "#083B92"),
+    breaks = c("HIIT", "EDU"),
+    labels = paste0(group_totals$group, " (n=", group_totals$total, ")")
+  ) +
+  scale_x_discrete(
+    labels = c(
+      "<10"   = "<10 (No depression)",
+      "10-11" = "10–11 (Borderline)",
+      "≥12"   = "≥12 (Elevated)"
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, 10),
+    expand = expansion(mult = c(0, 0.10))
+  ) +
+  labs(
+    x = "Postpartum EPDS category",
+    y = "Participants (%)",
+    fill = "Group"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "top"
+  )
 ```
 
-
-### Figure 4
+### Figure 4 Reproduction
 ```{r figure-4}
-# Write your code for reproducing, and then improving Figure 4. Present both figures together. Under the figures, explain how you've improved Figure 4 and why you consider this an improvement.
+fig4_long <- hiit_ppd_raw %>%
+  mutate(
+    group = case_when(
+      `Intervention group` == 1 ~ "HIIT",
+      `Intervention group` == 2 ~ "EDU",
+      TRUE ~ NA_character_
+    ),
+    post_bdi2    = as.numeric(`POST depression BDI-II score`),
+    pre_fs       = as.numeric(`PRE FS scale`),
+    post_fs      = as.numeric(`POST FS score`),
+    postnatal_fs = as.numeric(`Postnatal Florishing scale score`)
+  ) %>%
+  filter(
+    !is.na(group),
+    !is.na(post_bdi2),
+    !is.na(pre_fs),
+    !is.na(post_fs),
+    !is.na(postnatal_fs)
+  ) %>%
+  select(group, pre_fs, post_fs, postnatal_fs) %>%
+  pivot_longer(
+    cols = c(pre_fs, post_fs, postnatal_fs),
+    names_to = "time",
+    values_to = "fs"
+  ) %>%
+  mutate(
+    group = factor(group, levels = c("HIIT", "EDU")),
+    time = factor(
+      time,
+      levels = c("pre_fs", "post_fs", "postnatal_fs"),
+      labels = c(
+        "Before the intervention\n(II trimester of pregnancy)",
+        "After the intervention\n(III trimester of pregnancy)",
+        "Follow-up\n(± 5 months postpartum)"
+      )
+    )
+  )
+
+fig4_sum <- fig4_long %>%
+  group_by(group, time) %>%
+  summarise(
+    mean = mean(fs, na.rm = TRUE),
+    sd   = sd(fs, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+fig4_lab <- fig4_sum %>%
+  group_by(time) %>%
+  mutate(
+    nudge_y = if_else(mean == max(mean, na.rm = TRUE), 0.55, -0.55),
+    nudge_x = if_else(time == levels(time)[3], 0.12, -0.12)
+  ) %>%
+  ungroup() # arrange the tabs
+
+ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
+                width = 0.08, linewidth = 0.6, color = "black") +
+  geom_line(aes(linetype = group), linewidth = 0.8) +
+  geom_point(size = 2.2)+
+  geom_text(
+    data = fig4_lab,
+    aes(label = sprintf("M = %.2f", mean)),
+    nudge_x = fig4_lab$nudge_x,
+    nudge_y = fig4_lab$nudge_y,
+    size = 3
+  )+
+  scale_linetype_manual(
+    values = c("HIIT" = "solid", "EDU" = "dotted"),
+    labels = c("HIIT – High Intensity Interval Training Group",
+               "EDU – Educational Intervention Group")
+  ) +
+  scale_y_continuous(
+    limits = c(40, 60),
+    breaks = seq(40, 60, 2),
+    labels = function(x) sprintf("%.2f", x)
+  ) +
+  labs(
+    x = "<b>Psychological well-being</b> <i>(measured with the Flourishing Scale)</i>",
+    y = NULL,
+    linetype = NULL
+  ) +
+  theme_light()+
+  theme(
+    axis.title.x = element_markdown(
+      size = 12,
+      margin = margin(t = 10, b = 5)
+    ),
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  )
 ```
 
+### Figure 4 Improvements
+The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see.
+```{r}
+pd <- position_dodge(width = 0.4)
+
+ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
+  geom_errorbar(
+    aes(ymin = mean - sd, ymax = mean + sd, color = group), # Error bars with color
+    width = 0.08,
+    linewidth = 0.6,
+    position = pd
+  ) +
+  geom_line(aes(linetype = group, color = group), # Line with color
+            linewidth = 0.8,
+            position = pd) +
+  geom_point(aes(color = group), # Points with color
+             size = 2.2,
+             position = pd) +
+geom_text(
+    data = fig4_lab,
+    aes(x = as.numeric(time) + nudge_x,
+        y = mean + nudge_y,
+        label = sprintf("M = %.2f", mean),
+        color = group),
+    size = 3
+  )+
+  scale_color_manual(
+    values = c("HIIT" = "#C32113", "EDU" = "#083B92"),
+    labels = c("HIIT – High Intensity Interval Training Group",
+               "EDU – Educational Intervention Group")
+  ) +
+  scale_linetype_manual(
+    values = c("HIIT" = "solid", "EDU" = "dotted"),
+    labels = c("HIIT – High Intensity Interval Training Group",
+               "EDU – Educational Intervention Group")
+  ) +
+  scale_y_continuous(
+    limits = c(40, 60),
+    breaks = seq(40, 60, 2),
+    labels = function(x) sprintf("%.2f", x)
+  ) +
+  labs(
+    x = "<b>Psychological well-being</b> <i>(measured with the Flourishing Scale)</i>",
+    y = NULL,
+    color = NULL,
+    linetype = NULL
+  ) +
+  theme_light() +
+  theme(
+    axis.title.x = element_markdown(
+      size = 12,
+      margin = margin(t = 10, b = 5)
+    ),
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  )
+
+```
 
 ### Figure 5
 ```{r figure-5}
@@ -195,6 +460,9 @@ Column names not consistent
 Add label on y column, title etc 
 no explict mention of what intevention gorup each in
 
-## Task 2: FAIR data principles
-
+## Task 2: FAIR data principles (254 words)
+From the Findable perspective, the data set has several shortcomings. The data set is not hosted on any recognized public data repository, making it difficult to discover through academic search engines. So, the dataset only accessible as supplementary material to the original publication. In terms of Accessible, the dataset is technically easy to open and doesn't require authentication. However, since it's not hosted on an open data platform and lacks a clear open-access license, there is ambiguity around practical accessibility. Regarding Interoperability, the dataset uses a universal format, and variable names are in plain English, which is a plus. But inconsistencies in variable naming such as `Edinburg Postnatal Depression Scale Score` including spaces, and non-standard entries like `#NULL` make programmatic access and automated processing harder. Finally, the biggest issue is with Reusability. There is no accompanying file such as README or data dictionary, so even if someone finds the dataset, they cannot quickly understand its context (e.g. it's unclear what `POST FS score` vs. `Postnatal Florishing scale score` means without cross-referencing the paper), structure, and variables. The absence of information about scoring methods (e.g., how EPDS scores were derived), sample size decisions, or missing data handling further reduces reproducibility. Moreover, there is no licence or reuse guidance, making it legally ambiguous whether others can republish or adapt the data. In summary, while the dataset includes valuable psychological and intercention variables, it currently does not meet core FAIR principles and would require better documentation, clearer structure, and public hosting to be truly reusable and shareable.
 ## Task 3: Reproducibility brief
+
+
+
