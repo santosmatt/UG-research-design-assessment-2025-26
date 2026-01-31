@@ -441,7 +441,7 @@ sf_scores_sd_mean_graph_improved_version
 ```
 
 Inconsistent data types
-Nulls not handelled well
+Nulls not handled well
 Did not mention that people who did not do all scores where removed
 Column names not consistent 
 Add label on y column, title etc 
