@@ -105,7 +105,7 @@ sf_scores_sd_mean <- postpartum_depression_data %>%
           "HIIT - High Intensity Interval Training Group",
           "EDU - Educational Intervention Group")))
 
-sf_scores_sd_mean %>% 
+sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
              linetype = intervention_group_factor,
@@ -117,10 +117,13 @@ sf_scores_sd_mean %>%
                 width = .015,
                 linetype = "solid") +
    scale_alpha_manual(values = c(0.3,1)) +
-  geom_text(aes(label = paste("M = ", round(mean_physical_activity_score, 2))),
-            size = 3,
-            hjust = 1.1,
-            vjust = 1) +
+  ggrepel::geom_text_repel(
+    aes(label = paste("M = ", round(mean_physical_activity_score, 2))),
+    size = 3,
+    nudge_x = -0.15,
+    force = 3,
+    box.padding = 0.1,
+    direction = "y") +
   theme_bw( base_size = 12) +
   theme(legend.position = "bottom",
         legend.direction = "vertical",
