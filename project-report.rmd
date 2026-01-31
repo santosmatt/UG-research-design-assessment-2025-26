@@ -147,9 +147,7 @@ ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
   )
 ```
 
-
 ### Figure 4 Reproduction
-The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see.
 ```{r figure-4}
 fig4_long <- hiit_ppd_raw %>%
   mutate(
@@ -244,6 +242,7 @@ ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
 ```
 
 ### Figure 4 Improvements
+The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see.
 ```{r}
 pd <- position_dodge(width = 0.4)
 
