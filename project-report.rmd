@@ -15,7 +15,7 @@ NOTE: Please don't edit this template directly. Use `File` > `Save as` to create
 
 ```{r importing-required-packages}
 
-pacman::p_load(magrittr, dplyr)
+pacman::p_load(magrittr, dplyr, tidyr, ggplot2, ggtext)
 
 ```
 
@@ -35,7 +35,7 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
          postnatal_florishing_scale_score,
          pre_sf_12_pcs_physicalhealthscale,
          post_sf12_pcs,
-         postpre_sf12_pcs
+         postnatal_sf_12_pcs
          ) %>% 
   mutate(postnatal_depression_score = 
            as.numeric(edinburg_postnatal_depression_scale_score) %>% 
@@ -63,8 +63,137 @@ postpartum_depression_data <- postpartum_depression_data_raw %>%
 ### Figure 5
 ```{r figure-5}
 # Write your code for reproducing, and then improving Figure 5. Present both figures together. Under the figures, explain how you've improved Figure 5 and why you consider this an improvement.
+
+#Data wrangling
+sf_scores_sd_mean <- postpartum_depression_data %>% 
+  select(intervention_group, 
+         pre_sf_12_pcs_physicalhealthscale,
+         post_sf12_pcs,
+         postnatal_sf_12_pcs) %>%
+  #two columns where string not numeric
+  mutate(postnatal_sf_12_pcs = as.numeric(postnatal_sf_12_pcs),
+         post_sf12_pcs = as.numeric(post_sf12_pcs)) %>% 
+  #removing those from analysis who missed one or more surveys
+  filter(!is.na(postnatal_sf_12_pcs),
+         !is.na(post_sf12_pcs)) %>% 
+  pivot_longer(pre_sf_12_pcs_physicalhealthscale:postnatal_sf_12_pcs,
+               names_to = "time_of_survey",
+               values_to = "score") %>% 
+  group_by(intervention_group,time_of_survey) %>% 
+  summarise(mean_physical_activity_score = mean(score),
+            sd_physical_activity_score = sd(score)) %>% 
+  #Renaming time_of_survey and intervention_group and changing to factor
+  #Ensures have correct labels and allows for correct order/grouping
+  mutate(time_of_survey = 
+      factor(
+        time_of_survey,
+        levels = c(
+          "pre_sf_12_pcs_physicalhealthscale",
+          "post_sf12_pcs",
+          "postnatal_sf_12_pcs"),
+        labels = c(
+          "Before the intevention \n(II trimester of pregnancy)",
+          "After the intervention \n(III trimester of pregnancy)",
+          "Follow-up \n(± 5 months postpartum)")),
+      
+      intervention_group_factor = 
+      factor(
+        intervention_group,
+        levels = c(
+          "1",
+          "2"),
+        labels = c(
+          "HIIT - High Intensity Interval Training Group",
+          "EDU - Educational Intervention Group")))
+
+#Plotting graph copy
+sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
+  ggplot(aes(x = time_of_survey,
+             y = mean_physical_activity_score,
+             linetype = intervention_group_factor,
+             group = intervention_group_factor)) +
+  geom_line(linewidth = 0.25) +
+  geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
+                    ymax = mean_physical_activity_score + sd_physical_activity_score,
+                    alpha = intervention_group_factor),
+                width = .015,
+                linetype = "solid",
+                show.legend = FALSE) +
+  scale_alpha_manual(values = c(0.3,1)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  ggrepel::geom_text_repel(aes(
+    label = paste("M = ", round(mean_physical_activity_score, 2))),
+    size = 3,
+    nudge_x = -0.15,
+    force = 2,
+    box.padding = 0.2,
+    direction = "y") +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "bottom",
+        legend.direction = "vertical",
+        axis.title.x = element_markdown(hjust = 0.5, size = 12),
+        legend.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major.x = element_blank()) +
+  scale_y_continuous(limits = c(35,60),
+                     labels = scales::label_number(accuracy = 0.01),
+                     expand = c(0, 0)) +
+  labs(y = "",
+       x = "**Physical health** (*measured with the Short Form Health Survey - physical subscale*)") 
+
+sf_scores_sd_mean_graph_copy  
+
+#Improving graph 
+
+sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>% 
+  ggplot(aes(x = time_of_survey,
+             y = mean_physical_activity_score,
+             linetype = intervention_group_factor,
+             group = intervention_group_factor)) +
+  geom_line(linewidth = 0.25) +
+  geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
+                    ymax = mean_physical_activity_score + sd_physical_activity_score,
+                    alpha = intervention_group_factor),
+                width = .015,
+                linetype = "solid",
+                show.legend = FALSE) +
+  scale_alpha_manual(values = c(0.3,1)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  ggrepel::geom_text_repel(aes(
+    label = paste("M = ", round(mean_physical_activity_score, 2))),
+    size = 3,
+    nudge_x = -0.15,
+    force = 2,
+    box.padding = 0.2,
+    direction = "y") +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "bottom",
+        legend.direction = "vertical",
+        axis.title.x = element_markdown(hjust = 0.5, size = 12),
+        axis.title.y = element_markdown(angle = 90, vjust = 0.5),
+        legend.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major.x = element_blank(),
+        plot.caption = element_text(hjust = 0)) +
+  scale_y_continuous(limits = c(35,60),
+                     labels = scales::label_number(accuracy = 0.01),
+                     expand = c(0, 0)) +
+  labs(title = "Changes in physical health overtime",
+       subtitle = "Mean (± SD) physical health score of HIIT and EDU group", 
+       y = "Mean physical health score (± SD)",
+       x = "Time of Survey",
+       caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale.", width = 100))
+
+sf_scores_sd_mean_graph_improved_version
+
 ```
 
+Inconsistent data types
+Nulls not handelled well
+Did not mention that people who did not do all scores where removed
+Column names not consistent 
+Add label on y column, title etc 
+no explict mention of what intevention gorup each in
 
 ## Task 2: FAIR data principles
 
