@@ -239,8 +239,8 @@ ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
   )
 ```
 
-### Figure 4 Improvements
-The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see.
+### Figure 4 Improvements (111 words)
+The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see. We also added title and subtitle to describe the plot.
 ```{r Figure 4 Improvements}
 pd <- position_dodge(width = 0.4)
 
@@ -281,6 +281,8 @@ geom_text(
     labels = function(x) sprintf("%.2f", x)
   ) +
   labs(
+    title = "Changes in Phychological well-beings overtime",
+    subtitle = "Mean (± SD) psychological well-being score of HIIT and EDU groups",
     x = "<b>Psychological well-being</b> <i>(measured with the Flourishing Scale)</i>",
     y = NULL,
     color = NULL,
@@ -293,9 +295,10 @@ geom_text(
       margin = margin(t = 10, b = 5)
     ),
     legend.position = "bottom",
-    legend.direction = "vertical"
+    legend.direction = "vertical",
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
   )
-
 ```
 
 ### Figure 5 Reproduction
@@ -359,7 +362,7 @@ sf_scores_sd_mean <- fig5_raw %>%
                    "EDU - Educational Intervention Group")))
 ```
 
-### Figure 5 Improvements
+### Figure 5 Improvements (91 words)
 Figure 5 originally displayed the mean labels for the pre-intervention survey in the incorrect order. This error was not reproduced in the copy or improved version. This prevents confusion and improves accuracy. In the original graph, line type was used to distinguish between intervention groups, but this was difficult to differentiate so colour was introduced to improve clarity. Furthermore, the original figure had an x axis label and unclear caption but lacked title, substile, or y-axis label. These were added and improved upon to make interpretation easier and clearly describe results.
 ```{r Figure 5 Improvements}
 #Improving graph 
@@ -394,12 +397,13 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
         legend.title = element_blank(),
         axis.ticks = element_blank(),
         panel.grid.major.x = element_blank(),
-        plot.caption = element_text(hjust = 0)) +
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) +
   scale_y_continuous(limits = c(35,60),
                      labels = scales::label_number(accuracy = 0.01),
                      expand = c(0, 0)) +
   labs(title = "Changes in physical health overtime",
-       subtitle = "Mean (± SD) physical health score of HIIT and EDU group", 
+       subtitle = "Mean (± SD) physical health score of HIIT and EDU groups", 
        y = "Mean physical health score (± SD)",
        x = "Time of Survey",
        caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale.", width = 100))
@@ -417,7 +421,6 @@ Regarding interoperability, the dataset uses a universal format, and variable na
 Finally, concerning reusability, there is no accompanying file such as README. This leads to difficulty quickly understanding variable meanings without looking at the original paper. For example, it's unclear what `POST FS score` means vs. `Postnatal Flourishing scale score `. The absence of information about scoring methods, sample size decisions, or missing data handling further reduces reproducibility. To increase the FAIRNess regarding reusability documentation needs to be improved. 
 
 In summary, while the dataset includes valuable psychological and intervention variables, it currently does not meet core FAIR principles and would require better documentation, improved metadata and clearer structure. This would allow for full shareability and reusability.
-
 
 ## Task 3: Reproducibility brief (289 words)
 The authors have made several solid effort toward reproducibility. The current work can be reproduced due to the data being open access and available on Mendeley data, which is an established, reliable and easily accessible data repository where it can be downloaded. The data can be simply worked with as it is downloadable in an excel file format, which is a universal format that allows for it to be imported into other programmes for analysis. This allows for easy retrieval and manipulation of the data improving reproducibility. 
