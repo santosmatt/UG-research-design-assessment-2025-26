@@ -362,12 +362,7 @@ sf_scores_sd_mean <- fig5_raw %>%
 ```
 
 ### Figure 5 Improvements
-Inconsistent data types
-Nulls not handled well
-Did not mention that people who did not do all scores where removed
-Column names not consistent 
-Add label on y column, title etc 
-no explict mention of what intevention gorup each in
+Figure 5 originally displayed the mean labels for the pre-intervention survey in the incorrect order. This error was not reproduced in the copy or improved version. This prevents confusion and improves accuracy. In the original graph, line type was used to distinguish between intervention groups, but this was difficult to differentiate so colour was introduced to improve clarity. Furthermore, the original figure had an x axis label and unclear caption but lacked title, substile, or y-axis label. These were added and improved upon to make interpretation easier and clearly describe results.
 ```{r Figure 5 Improvements}
 #Plotting graph copy
 sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
@@ -411,15 +406,16 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
              linetype = intervention_group_factor,
-             group = intervention_group_factor)) +
+             group = intervention_group_factor,
+             colour = intervention_group_factor)) +
   geom_line(linewidth = 0.25) +
   geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
                     ymax = mean_physical_activity_score + sd_physical_activity_score,
-                    alpha = intervention_group_factor),
-                width = .015,
+                    colour = intervention_group_factor),
+                width = .03,
                 linetype = "solid",
                 show.legend = FALSE) +
-  scale_alpha_manual(values = c(0.3,1)) +
+  scale_color_manual(values = c("#C32113", "#083B92")) +
   scale_linetype_manual(values = c("solid", "dashed")) +
   ggrepel::geom_text_repel(aes(
     label = paste("M = ", round(mean_physical_activity_score, 2))),
@@ -427,7 +423,8 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
     nudge_x = -0.15,
     force = 2,
     box.padding = 0.2,
-    direction = "y") +
+    direction = "y",
+    show.legend = FALSE) +
   theme_bw(base_size = 12) +
   theme(legend.position = "bottom",
         legend.direction = "vertical",
