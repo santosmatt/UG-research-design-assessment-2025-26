@@ -134,14 +134,16 @@ ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
     breaks = seq(0, 100, 10),
     expand = expansion(mult = c(0, 0.10))
   ) +
-  labs(
-    x = "Postpartum EPDS category",
-    y = "Participants (%)",
-    fill = "Group"
-  ) +
+  labs(title = "Distribution of postpartum EPDS categories by group",
+       subtitle = "Participants (%) in each EPDS cut-off category (Time 3 follow-up)",
+       x = "Postpartum EPDS category",
+       y = "Participants (%)",
+       fill = "Group") +
   theme_classic(base_size = 12) +
   theme(
-    legend.position = "top"
+    legend.position = "top",
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
   )
 ```
 
