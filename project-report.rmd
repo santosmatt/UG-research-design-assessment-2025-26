@@ -357,59 +357,10 @@ sf_scores_sd_mean <- fig5_raw %>%
         levels = c("1","2"),
         labels = c("HIIT - High Intensity Interval Training Group",
                    "EDU - Educational Intervention Group")))
-<<<<<<< HEAD
 ```
 
 ### Figure 5 Improvements
 Figure 5 originally displayed the mean labels for the pre-intervention survey in the incorrect order. This error was not reproduced in the copy or improved version. This prevents confusion and improves accuracy. In the original graph, line type was used to distinguish between intervention groups, but this was difficult to differentiate so colour was introduced to improve clarity. Furthermore, the original figure had an x axis label and unclear caption but lacked title, substile, or y-axis label. These were added and improved upon to make interpretation easier and clearly describe results.
-```{r Figure 5 Improvements}
-=======
->>>>>>> bcbbc417dab8e58c22c6e750a38786dbf3a78f53
-#Plotting graph copy
-sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
-  ggplot(aes(x = time_of_survey,
-             y = mean_physical_activity_score,
-             linetype = intervention_group_factor,
-             group = intervention_group_factor)) +
-  geom_line(linewidth = 0.25) +
-  geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
-                    ymax = mean_physical_activity_score + sd_physical_activity_score,
-                    alpha = intervention_group_factor),
-                width = 0.04,
-                linetype = "solid",
-                show.legend = FALSE) +
-  scale_alpha_manual(values = c(0.3,1)) +
-  scale_linetype_manual(values = c("solid", "dashed")) +
-  ggrepel::geom_text_repel(aes(
-    label = paste("M = ", round(mean_physical_activity_score, 2))),
-    size = 3,
-    nudge_x = -0.15,
-    force = 2,
-    box.padding = 0.2,
-    direction = "y") +
-  theme_bw(base_size = 12) +
-  theme(legend.position = "bottom",
-        legend.direction = "vertical",
-        axis.title.x = element_markdown(hjust = 0.5, size = 12),
-        legend.title = element_blank(),
-        axis.ticks = element_blank(),
-        panel.grid.major.x = element_blank()) +
-  scale_y_continuous(limits = c(35,60),
-                     labels = scales::label_number(accuracy = 0.01),
-                     expand = c(0, 0)) +
-  labs(y = "",
-       x = "**Physical health** (*measured with the Short Form Health Survey - physical subscale*)") 
-
-sf_scores_sd_mean_graph_copy  
-```
-
-### Figure 5 Improvements
-Inconsistent data types
-Nulls not handled well
-Did not mention that people who did not do all scores where removed
-Column names not consistent 
-Add label on y column, title etc 
-no explict mention of what intevention gorup each in
 ```{r Figure 5 Improvements}
 #Improving graph 
 sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>% 
@@ -456,37 +407,19 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
 sf_scores_sd_mean_graph_improved_version
 ```
 
-## Task 2: FAIR data principles (248 words)
-From the Findable perspective, the dataset persorms relatively well becasue it is deposited in a public data repository (Mendeley Data) and assigned a persistent identifier (DOI:10.17632/s32pbtc6dx.1), which improves discoverability and citability beyond the original publication. 
-In terms of Accessible, the dataset appears straightforward to download and open in a common formats without requiring specialized software. However, without an explicit open-access license, users may be uncertain about what kinds of reuse are permitted even when the file itself is technically accessible.
-Regarding Interoperability, the dataset uses a universal format, and variable names are in plain English, which is a plus. But inconsistencies in variable naming such as `Edinburg Postnatal Depression Scale Score` including spaces, and non-standard entries like `#NULL` make programmatic access and automated processing harder. 
-Finally, the biggest issue is with Reusability. There is no accompanying file such as README or data dictionary, so even if someone finds the dataset, they cannot quickly understand its context (e.g. it's unclear what `POST FS score` vs. `Postnatal Florishing scale score` means without cross-referencing the paper), structure, and variables. The absence of information about scoring methods (e.g., how EPDS scores were derived), sample size decisions, or missing data handling further reduces reproducibility. Moreover, there is no licence or reuse guidance, making it legally ambiguous whether others can republish or adapt the data. In summary, while the dataset includes valuable psychological and intercention variables, it currently does not meet core FAIR principles and would require better documentation, standaardized formatting, and clear licensing.
-
-<<<<<<< HEAD
-## Task 2: FAIR data principles (299 words)
+## Task 2: FAIR data principles (287 words)
 Concerning findability, the data set is hosted on Mendeley data, which is a public, easy to access and searchable repository. It has a DOI identifier which is globally unique and it is clearly linked to the original academic paper. Despite this, the metadata on the actual dataset lacks this unique identifier which, if added, increases the FAIRness.
 
-In terms of accessibility, the dataset does not require authentication and can be accessed through a standard protocol. It is stored in a .xlsx format which is common and free to use with widely accessible software. Additionally, it contains rich metadata describing it contents, including contacts to authors. This allows for clarification and potential access to the dataset if it is no longer available. This supports the FAIR principle of accessibility with the data set being easy to access.
+In terms of accessibility, the dataset does not require authentication and can be accessed through a standard protocol. It is stored in a `.xlsx` format which is common and free to use with widely accessible software. However, without an explicit open-access license, users may be uncertain about what kinds of reuse are permitted even when the file itself is technically accessible.
 
-Regarding interoperability, the dataset uses a .xlsx format with variable names in easy to understand English, improving human readability. Inconsistencies in variable such as names including spaces, and non-standard entries like `#NULL`, reduce machine reliability. This results in reuse, integration with other datasets and automated processing being more difficult. This results in a lack of compatibility reducing FAIRness.
+Regarding interoperability, the dataset uses a universal format, and variable names are in plain English, which is a plus. But inconsistencies in variable naming such as `Edinburg Postnatal Depression Scale Score` including spaces, and non-standard entries like `#NULL` make programmatic access and automated processing harder. This results in a lack of compatibility reducing FAIRness.
 
-Finally, concerning reusability, there is no accompanying file such as README. This leads to difficulty quickly understanding variable meanings without looking at the original paper. For example, it's unclear what `POST FS score` means vs. `Postnatal Flourishing scale score `. The absence of information about scoring methods, sample size decisions, or missing data handling further reduces reproducibility. To increase the FAIRNess regarding reusability documentation needs to be improved. 
+Finally, the biggest issue is with Reusability. There is no accompanying file such as README or data dictionary, so even if someone finds the dataset, they cannot quickly understand its context (e.g. it's unclear what `POST FS score` vs. `Postnatal Florishing scale score` means without cross-referencing the paper), structure, and variables. The absence of information about scoring methods (e.g., how EPDS scores were derived), sample size decisions, or missing data handling further reduces reproducibility. Moreover, there is no licence or reuse guidance, making it legally ambiguous whether others can republish or adapt the data. In summary, the dataset currently does not meet core FAIR principles and would require better documentation, standardized formatting, and clearer licensing.
 
-In summary, while the dataset includes valuable psychological and intervention variables, it currently does not meet core FAIR principles and would require better documentation, improved metadata and clearer structure. This would allow for full shareability and reusability.
+## Task 3: Reproducibility brief (289 words)
+The authors have made several solid effort toward reproducibility. The current work can be reproduced due to the data being open access and available on Mendeley data, which is an established, reliable and easily accessible data repository where it can be downloaded. The data can be simply worked with as it is downloadable in an excel file format, which is a universal format that allows for it to be imported into other programmes for analysis. This allows for easy retrieval and manipulation of the data improving reproducibility. 
 
-## Task 3: Reproducibility brief (294 words)
-
-A positive is that the current work can be reproduced due to the data being open access and available on Mendeley data, which is an established, reliable and easily accessible data repository where it can be downloaded. In addition, the data can be simply worked with as it is downloadable in an excel file format, which is a well-established universal format that allows for it to be imported into other programmes for analysis. This allows for easy retrieval and manipulation of the data improving reproducibility. 
-
-Unfortunately, the variables are poorly defined and described affecting reproducibility and this needs addressed by providing specify information required by users to correctly understand the different variables and use them correctly in their analysis. Thus, detailed documentation defining and describing the variables would allow for the open access data to be reproducibility analysed by different users. In addition, although the data is open access the code is not freely available for analysis. This makes it hard for researchers to reproduce the results in the findings. 
+Unfortunately, the variables are poorly defined and described affecting reproducibility and this needs addressed by providing specify information required by users to correctly understand the different variables and use them correctly in their analysis. Thus, detailed documentation defining and describing the variables would allow for the open access data to be reproducibility analysed by different users. In addition, the statistical methods are described broadly, but the analysis code is not shared, making it difficult to replicate exact procedures. 
 
 On the website, under the categories describing the type of data collected the authors use the key words “psychology” and “physical activity”. Unfortunately, these categories do not include any description on the population the data belongs to, that is, pregnancy and postpartum, hence researchers searching for data for this population would likely not find the dataset. Improving the categories with the addition of the population would improve it use and reproducibility. On a positive aspect, 2 papers that have used the dataset are included allowing readers of these papers to find the dataset. In addition, readers of these papers can review how the authors carried out the interventions in more detail and improve their understanding of the dataset and improve reproducibility of its use.
-=======
-## Task 3: Reproducibility brief()
->>>>>>> bcbbc417dab8e58c22c6e750a38786dbf3a78f53
-
-The authors have made several solid effort toward reproducibility. They used widely accepted scales (EPDS and FS), reported clear group allocations (HIIT & EDU), and provided a dataset covering outcome scores across multiple time points. This gives readers a basis to understand and examine the study's core findings. The dataset is aligned with the analysis described in the paper.
-However, several improvements are needed for better transparency and openness. Firstly, although the dataset is included, it lacks a formal citation and licensing information. Secondly, analytic methods transparency is limited. The statistical methods are described broadly, but the analysis code is not shared, making it difficult to replicate exact procedures.  Providing a public github repository or supplementary script files would help. Thirdly, research material transparency is low; no survey instruments, training munuals, or intervention details are available, which restricts replication in other settings.
-Design transparency is moderate: the authors describe general randomisation and timelines, but do not share sample size justifications and details on handling missing data. There is also no evidence of pre-registration, which limits confidence in analytic flexibility. Lastly, the paper does not encourage or support direct replication by others.
-In summary, by publishing their analysis scripts, prociding detailed documentation for all variables and procedures, the authors could make their research more transparent, open, and valuable to future scholars.
 
