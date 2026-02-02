@@ -1,6 +1,6 @@
 ---
 title: "Group project assessment"
-author: 'B229565, B249217,B227512'
+author: 'B229565, B249217, B227512'
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -62,7 +62,7 @@ fig3_sum <- fig3_raw %>%
   ungroup()
 
 # Figure Plot (Original)
-ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
+Fig3_original <- ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
   geom_col(width = 0.25, position = position_stack(reverse = TRUE)) +
   coord_flip() +
   scale_y_continuous(
@@ -92,6 +92,7 @@ ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
     legend.position = "bottom",
     legend.direction = "vertical"
   )
+Fig3_original
 ```
 
 ### Figure 3 Improvements (75 words)
@@ -109,7 +110,7 @@ group_totals <- fig3_sum_imp %>%
   summarise(total = sum(n), .groups = "drop")
 
 # Improved Plot
-ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
+Fig3_improved <- ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
   geom_col(position = position_dodge(width = 0.8), width = 0.7) +
   geom_text(
     aes(label = paste0(round(pct, 1), "%")),
@@ -145,6 +146,7 @@ ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
+Fig3_improved
 ```
 
 ### Figure 4 Reproduction
@@ -203,7 +205,7 @@ fig4_lab <- fig4_sum %>%
   ) %>%
   ungroup() # arrange the tabs
 
-ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
+Fig4_original <- ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
                 width = 0.08, linewidth = 0.6, color = "black") +
   geom_line(aes(linetype = group), linewidth = 0.8) +
@@ -239,17 +241,17 @@ ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
     legend.position = "bottom",
     legend.direction = "vertical"
   )
+Fig4_original
 ```
 
 ### Figure 4 Improvements (111 words)
 The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see. We also added title and subtitle to describe the plot.
 ```{r Figure 4 Improvements}
+pd <- position_dodge(width = 0.4)
 
 # Standard deviation error bars are used to match the original figure in the paper and to give a sense of how much scores vary within each group.
 
-pd <- position_dodge(width = 0.4)
-
-ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
+Fig4_improved <- ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
   geom_errorbar(
     aes(ymin = mean - sd, ymax = mean + sd, color = group), # Error bars with color
     width = 0.08,
@@ -304,8 +306,9 @@ geom_text(
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
+Fig4_improved
 
-These new changes make it a lot easier to follow the figure presented. Also, helping readers compare the two groups over time quickly and clearly.
+These new changes make it a lot easier to follow the figure presented. Also, helping readers quickly and clearly compare the two groups over time. (25 words)
 ```
 
 ### Figure 5 Reproduction
@@ -329,7 +332,7 @@ fig5_raw <- hiit_ppd_raw %>%
                       "increased severity of PDD symptoms"),
                include.lowest = TRUE))
 
-sf_scores_sd_mean <- fig5_raw %>% 
+fig5_sf_scores_sd_mean <- fig5_raw %>% 
   select(`Intervention group`,
          `PRE SF-12 (PCS) physicalhealthscale`,
          `POST SF12 (PCS)`,
@@ -367,13 +370,49 @@ sf_scores_sd_mean <- fig5_raw %>%
         levels = c("1","2"),
         labels = c("HIIT - High Intensity Interval Training Group",
                    "EDU - Educational Intervention Group")))
+# Orginal plot
+Fig5_original <- fig5_sf_scores_sd_mean %>% 
+  ggplot(aes(x = time_of_survey,
+             y = mean_physical_activity_score,
+             linetype = intervention_group_factor,
+             group = intervention_group_factor)) +
+  geom_line(linewidth = 0.25) +
+  geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
+                    ymax = mean_physical_activity_score + sd_physical_activity_score,
+                    alpha = intervention_group_factor),
+                width = 0.04,
+                linetype = "solid",
+                show.legend = FALSE) +
+  scale_alpha_manual(values = c(0.3,1)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  ggrepel::geom_text_repel(aes(
+    label = paste("M = ", round(mean_physical_activity_score, 2))),
+    size = 3,
+    nudge_x = -0.15,
+    force = 2,
+    box.padding = 0.2,
+    direction = "y") +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "bottom",
+        legend.direction = "vertical",
+        axis.title.x = element_markdown(hjust = 0.5, size = 12),
+        legend.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major.x = element_blank()) +
+  scale_y_continuous(limits = c(35,60),
+                     labels = scales::label_number(accuracy = 0.01),
+                     expand = c(0, 0)) +
+  labs(y = "",
+       x = "**Physical health** (*measured with the Short Form Health Survey - physical subscale*)") 
+
+Fig5_original
 ```
 
 ### Figure 5 Improvements (91 words)
-Figure 5 originally displayed the mean labels for the pre-intervention survey in the incorrect order. This error was not reproduced in the copy or improved version. This prevents confusion and improves accuracy. In the original graph, line type was used to distinguish between intervention groups, but this was difficult to differentiate so colour was introduced to improve clarity. Furthermore, the original figure had an x axis label and unclear caption but lacked title, substile, or y-axis label. These were added and improved upon to make interpretation easier and clearly describe results.
+Figure 5 originally displayed the mean labels for the pre-intervention survey in the incorrect order. This error was not reproduced in the copy or improved version. This prevents confusion and improves accuracy. In the original graph, line type was used to distinguish between intervention groups, but this was difficult to differentiate so colour was introduced to improve clarity. Furthermore, the original figure had an x axis label and unclear caption but lacked title, substile, and y-axis label. These were added and improved upon to make interpretation easier and clearly describe results.
 ```{r Figure 5 Improvements}
 #Improving graph 
-sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>% 
+Fig5_improved <- fig5_sf_scores_sd_mean %>% 
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
              linetype = intervention_group_factor,
@@ -414,8 +453,7 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
        y = "Mean physical health score (± SD)",
        x = "Time of Survey",
        caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale.", width = 100))
-
-sf_scores_sd_mean_graph_improved_version
+Fig5_improved
 ```
 
 ## Task 2: FAIR data principles (293 words)
@@ -435,4 +473,3 @@ The authors have made several solid effort toward reproducibility. The current w
 Unfortunately, the variables are poorly defined and described affecting reproducibility and this needs addressed by providing specify information required by users to correctly understand the different variables and use them correctly in their analysis. Thus, detailed documentation defining and describing the variables would allow for the open access data to be reproducibility analysed by different users. In addition, the statistical methods are described broadly, but the analysis code is not shared, making it difficult to replicate exact procedures. 
 
 On the website, under the categories describing the type of data collected the authors use the key words “psychology” and “physical activity”. Unfortunately, these categories do not include any description on the population the data belongs to, that is, pregnancy and postpartum, hence researchers searching for data for this population would likely not find the dataset. Improving the categories with the addition of the population would improve it use and reproducibility. On a positive aspect, 2 papers that have used the dataset are included allowing readers of these papers to find the dataset. In addition, readers of these papers can review how the authors carried out the interventions in more detail and improve their understanding of the dataset and improve reproducibility of its use.
-
