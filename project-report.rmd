@@ -244,6 +244,9 @@ ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
 ### Figure 4 Improvements (111 words)
 The original Figure 4 used the same color and line type for both groups, which made it hard to tell them apart, especially when the error bars and means were close or overlapping. The mean labels were stacked in fixed positions, sometimes putting the lower mean on top, which could be confusing. We improved it by giving each group a distinct color (red for HIIT, blue for EDU), slightly offsetting the points and error bars so they don’t overlap, and placing the mean labels based on which value is higher. This makes the trends and group differences much easier to see. We also added title and subtitle to describe the plot.
 ```{r Figure 4 Improvements}
+
+# Standard deviation error bars are used to match the original figure in the paper and to give a sense of how much scores vary within each group.
+
 pd <- position_dodge(width = 0.4)
 
 ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
@@ -283,7 +286,7 @@ geom_text(
     labels = function(x) sprintf("%.2f", x)
   ) +
   labs(
-    title = "Changes in Phychological well-beings overtime",
+    title = "Changes in Psychological well-being over time",
     subtitle = "Mean (± SD) psychological well-being score of HIIT and EDU groups",
     x = "<b>Psychological well-being</b> <i>(measured with the Flourishing Scale)</i>",
     y = NULL,
@@ -301,6 +304,8 @@ geom_text(
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
+
+These new changes make it a lot easier to follow the figure presented. Also, helping readers compare the two groups over time quickly and clearly.
 ```
 
 ### Figure 5 Reproduction
