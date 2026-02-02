@@ -62,7 +62,7 @@ fig3_sum <- fig3_raw %>%
   ungroup()
 
 # Figure Plot (Original)
-ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
+Fig3_original <- ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
   geom_col(width = 0.25, position = position_stack(reverse = TRUE)) +
   coord_flip() +
   scale_y_continuous(
@@ -92,6 +92,7 @@ ggplot(fig3_sum, aes(x = group, y = pct, fill = epds_cat)) +
     legend.position = "bottom",
     legend.direction = "vertical"
   )
+Fig3_original
 ```
 
 ### Figure 3 Improvements (75 words)
@@ -109,7 +110,7 @@ group_totals <- fig3_sum_imp %>%
   summarise(total = sum(n), .groups = "drop")
 
 # Improved Plot
-ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
+Fig3_improved <- ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
   geom_col(position = position_dodge(width = 0.8), width = 0.7) +
   geom_text(
     aes(label = paste0(round(pct, 1), "%")),
@@ -145,6 +146,7 @@ ggplot(fig3_sum_imp, aes(x = epds_cat, y = pct, fill = group)) +
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
+Fig3_improved
 ```
 
 ### Figure 4 Reproduction
@@ -203,7 +205,7 @@ fig4_lab <- fig4_sum %>%
   ) %>%
   ungroup() # arrange the tabs
 
-ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
+Fig4_original <- ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
                 width = 0.08, linewidth = 0.6, color = "black") +
   geom_line(aes(linetype = group), linewidth = 0.8) +
@@ -239,6 +241,7 @@ ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
     legend.position = "bottom",
     legend.direction = "vertical"
   )
+Fig4_original
 ```
 
 ### Figure 4 Improvements (111 words)
@@ -246,7 +249,7 @@ The original Figure 4 used the same color and line type for both groups, which m
 ```{r Figure 4 Improvements}
 pd <- position_dodge(width = 0.4)
 
-ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
+Fig4_improved <- ggplot(fig4_sum, aes(x = time, y = mean, group = group)) +
   geom_errorbar(
     aes(ymin = mean - sd, ymax = mean + sd, color = group), # Error bars with color
     width = 0.08,
@@ -301,6 +304,7 @@ geom_text(
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
+Fig4_improved
 ```
 
 ### Figure 5 Reproduction
@@ -324,7 +328,7 @@ fig5_raw <- hiit_ppd_raw %>%
                       "increased severity of PDD symptoms"),
                include.lowest = TRUE))
 
-sf_scores_sd_mean <- fig5_raw %>% 
+fig5_sf_scores_sd_mean <- fig5_raw %>% 
   select(`Intervention group`,
          `PRE SF-12 (PCS) physicalhealthscale`,
          `POST SF12 (PCS)`,
@@ -363,7 +367,7 @@ sf_scores_sd_mean <- fig5_raw %>%
         labels = c("HIIT - High Intensity Interval Training Group",
                    "EDU - Educational Intervention Group")))
 # Orginal plot
-sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
+Fig5_original <- fig5_sf_scores_sd_mean %>% 
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
              linetype = intervention_group_factor,
@@ -397,14 +401,14 @@ sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>%
   labs(y = "",
        x = "**Physical health** (*measured with the Short Form Health Survey - physical subscale*)") 
 
-sf_scores_sd_mean_graph_copy 
+Fig5_original
 ```
 
 ### Figure 5 Improvements (91 words)
-Figure 5 originally displayed the mean labels for the pre-intervention survey in the incorrect order. This error was not reproduced in the copy or improved version. This prevents confusion and improves accuracy. In the original graph, line type was used to distinguish between intervention groups, but this was difficult to differentiate so colour was introduced to improve clarity. Furthermore, the original figure had an x axis label and unclear caption but lacked title, substile, or y-axis label. These were added and improved upon to make interpretation easier and clearly describe results.
+Figure 5 originally displayed the mean labels for the pre-intervention survey in the incorrect order. This error was not reproduced in the copy or improved version. This prevents confusion and improves accuracy. In the original graph, line type was used to distinguish between intervention groups, but this was difficult to differentiate so colour was introduced to improve clarity. Furthermore, the original figure had an x axis label and unclear caption but lacked title, substile, and y-axis label. These were added and improved upon to make interpretation easier and clearly describe results.
 ```{r Figure 5 Improvements}
 #Improving graph 
-sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>% 
+Fig5_improved <- fig5_sf_scores_sd_mean %>% 
   ggplot(aes(x = time_of_survey,
              y = mean_physical_activity_score,
              linetype = intervention_group_factor,
@@ -445,8 +449,7 @@ sf_scores_sd_mean_graph_improved_version <- sf_scores_sd_mean %>%
        y = "Mean physical health score (± SD)",
        x = "Time of Survey",
        caption = stringr::str_wrap("Figure 5 shows how physcial health varies between the HIIT and EDU group over time. Physical health is measured using the Short Form Health Survey - physical subscale.", width = 100))
-
-sf_scores_sd_mean_graph_improved_version
+Fig5_improved
 ```
 
 ## Task 2: FAIR data principles (293 words)
