@@ -362,6 +362,42 @@ sf_scores_sd_mean <- fig5_raw %>%
         levels = c("1","2"),
         labels = c("HIIT - High Intensity Interval Training Group",
                    "EDU - Educational Intervention Group")))
+# Orginal plot
+sf_scores_sd_mean_graph_copy <- sf_scores_sd_mean %>% 
+  ggplot(aes(x = time_of_survey,
+             y = mean_physical_activity_score,
+             linetype = intervention_group_factor,
+             group = intervention_group_factor)) +
+  geom_line(linewidth = 0.25) +
+  geom_errorbar(aes(ymin = mean_physical_activity_score - sd_physical_activity_score,
+                    ymax = mean_physical_activity_score + sd_physical_activity_score,
+                    alpha = intervention_group_factor),
+                width = 0.04,
+                linetype = "solid",
+                show.legend = FALSE) +
+  scale_alpha_manual(values = c(0.3,1)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  ggrepel::geom_text_repel(aes(
+    label = paste("M = ", round(mean_physical_activity_score, 2))),
+    size = 3,
+    nudge_x = -0.15,
+    force = 2,
+    box.padding = 0.2,
+    direction = "y") +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "bottom",
+        legend.direction = "vertical",
+        axis.title.x = element_markdown(hjust = 0.5, size = 12),
+        legend.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major.x = element_blank()) +
+  scale_y_continuous(limits = c(35,60),
+                     labels = scales::label_number(accuracy = 0.01),
+                     expand = c(0, 0)) +
+  labs(y = "",
+       x = "**Physical health** (*measured with the Short Form Health Survey - physical subscale*)") 
+
+sf_scores_sd_mean_graph_copy 
 ```
 
 ### Figure 5 Improvements (91 words)
